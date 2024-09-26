@@ -3,6 +3,15 @@
 version = 3
 
 [[package]]
+name = "Rheia"
+version = "0.1.0"
+dependencies = [
+ "iced",
+ "rfd",
+ "tokio",
+]
+
+[[package]]
 name = "ab_glyph"
 version = "0.2.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1079,15 +1088,6 @@ dependencies = [
  "iced_widget",
  "iced_winit",
  "thiserror",
-]
-
-[[package]]
-name = "iced-editor"
-version = "0.1.0"
-dependencies = [
- "iced",
- "rfd",
- "tokio",
 ]
 
 [[package]]
