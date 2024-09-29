@@ -12,7 +12,7 @@ From video [Building a simple text editor with iced, a cross-platform GUI librar
 - [x] Async file loading
 - [x] Native file picker
 - [x] File path tracking
-- [ ] New and save interactions
+- [x] New and save interactions
 - [ ] Font loading and custom icons
 - [ ] Tooltips and styling
 - [ ] Syntax highlighting
