@@ -1,6 +1,6 @@
-use iced::{executor};
+use iced::{executor, Font};
 use iced::widget::text_editor::Content;
-use iced::widget::{button, column, container, horizontal_space, row, text, text_editor};
+use iced::widget::{button,tooltip, column, container, horizontal_space, row, text, text_editor};
 use iced::{Application, Command, Element, Length, Settings, Theme};
 use std::io;
 use std::path::{Path, PathBuf};
@@ -93,16 +93,31 @@ impl Application for Editor {
     }
 
     fn view(&self) -> Element<'_, Self::Message> {
-        let new_file_btn = button("New").on_press(Message::New);
-        let open_file_btn = button("Open").on_press(Message::Open);
-        let save_file_btn = button("Save").on_press(Message::Save);
+        let new_file_btn = button(new_icon())
+            .on_press(Message::New);
+        let open_file_btn = button(open_icon())
+            .on_press(Message::Open);
+        let save_file_btn = button(save_icon())
+            .on_press(Message::Save);
         let controls = row![
-            new_file_btn,
+            // show `open` label when button hovered
+            tooltip(
+                open_file_btn,
+                "Open",
+                tooltip::Position::Bottom
+            ).gap(5),
             horizontal_space(Length::Fixed(20.0)),
-            save_file_btn,
+            tooltip(
+                new_file_btn,
+                "New",
+                tooltip::Position::Bottom
+            ).gap(5),
             horizontal_space(Length::Fixed(20.0)),
-            open_file_btn,
-
+            tooltip(
+                save_file_btn,
+                "Save",
+                tooltip::Position::Bottom
+            ).gap(5),
         ];
         let editor = text_editor(&self.content).on_edit(Message::Edit);
 
@@ -125,7 +140,9 @@ impl Application for Editor {
                 match select {
                     None => text(base_info),
                     Some(select) => {
+                        // line breaks
                         let breaks = select.matches('\n').count();
+                        //  char selection
                         let extra_info = if breaks > 0 {
                             format!(" ({} chars, {} line breaks)", select.len(), breaks)
                         } else {
@@ -191,6 +208,33 @@ fn default_file() -> PathBuf {
     PathBuf::from(format!("{}\\README.md", env!("CARGO_MANIFEST_DIR")))
 }
 
+fn icon<'a, Message>(codepoint: char) -> Element<'a, Message> {
+    const ICON_FONT: Font = Font::with_name("editor-icons");
+
+    text(codepoint).font(ICON_FONT).into()
+}
+
+fn open_icon<'a>() -> Element<'a, Message> {
+    icon('\u{E800}')
+}
+
+fn new_icon<'a>() -> Element<'a, Message> {
+    icon('\u{E801}')
+}
+
+fn save_icon<'a>() -> Element<'a, Message> {
+    icon('\u{E802}')
+}
+
 fn main() -> iced::Result {
-    Editor::run(Settings::default())
+    Editor::run(
+        Settings {
+            fonts: vec![
+                include_bytes!("../fonts/editor-icons.ttf")
+                    .as_slice()
+                    .into()
+            ],
+            ..Settings::default()
+        }
+    )
 }
