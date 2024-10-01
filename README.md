@@ -9,11 +9,13 @@ From video [Building a simple text editor with iced, a cross-platform GUI librar
 
 - [x] Multi-line text input
 - [x] Dark theme and cursor indicator
+  - [x] Show char selection and line breaks
 - [x] Async file loading
 - [x] Native file picker
 - [x] File path tracking
 - [x] New and save interactions
-- [ ] Font loading and custom icons
+- [x] Font loading and custom icons
+  - [x] Show tooltip when button hovered
 - [ ] Tooltips and styling
 - [ ] Syntax highlighting
 - [ ] Theme picker
