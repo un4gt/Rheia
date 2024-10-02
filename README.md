@@ -16,7 +16,7 @@ From video [Building a simple text editor with iced, a cross-platform GUI librar
 - [x] New and save interactions
 - [x] Font loading and custom icons
   - [x] Show tooltip when button hovered
-- [ ] Tooltips and styling
+- [x] Tooltips and styling
 - [ ] Syntax highlighting
 - [ ] Theme picker
 - [ ] Subscriptions and save hotkey
