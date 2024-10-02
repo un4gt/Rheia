@@ -20,3 +20,7 @@ From video [Building a simple text editor with iced, a cross-platform GUI librar
 - [x] Theme picker
 - [x] Subscriptions and save hotkey
 - [ ] Undo / Redo
+
+## Fonts
+
+Download it from [Fontello - icon fonts generator](https://fontello.com/)
