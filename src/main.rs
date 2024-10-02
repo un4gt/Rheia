@@ -1,4 +1,4 @@
-use iced::{Application, Font, Settings};
+use iced::Font;
 use crate::editor::Editor;
 
 mod icons;
@@ -8,15 +8,9 @@ mod editor;
 
 
 fn main() -> iced::Result {
-    Editor::run(
-        Settings {
-            default_font: Font::MONOSPACE,
-            fonts: vec![
-                include_bytes!("../fonts/editor-icons.ttf")
-                    .as_slice()
-                    .into()
-            ],
-            ..Settings::default()
-        }
-    )
+    iced::application("Rheia - Iced", Editor::update, Editor::view)
+        .theme(Editor::theme)
+        .default_font(Font::MONOSPACE)
+        .font(include_bytes!("../fonts/editor-icons.ttf"))
+        .run_with(Editor::new)
 }
