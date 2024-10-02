@@ -1,4 +1,4 @@
-use iced::{executor, Font};
+use iced::{executor, Font, theme};
 use iced::widget::text_editor::Content;
 use iced::widget::{button,tooltip, column, container, horizontal_space, row, text, text_editor};
 use iced::{Application, Command, Element, Length, Settings, Theme};
@@ -93,32 +93,11 @@ impl Application for Editor {
     }
 
     fn view(&self) -> Element<'_, Self::Message> {
-        let new_file_btn = button(new_icon())
-            .on_press(Message::New);
-        let open_file_btn = button(open_icon())
-            .on_press(Message::Open);
-        let save_file_btn = button(save_icon())
-            .on_press(Message::Save);
         let controls = row![
-            // show `open` label when button hovered
-            tooltip(
-                open_file_btn,
-                "Open",
-                tooltip::Position::Bottom
-            ).gap(5),
-            horizontal_space(Length::Fixed(20.0)),
-            tooltip(
-                new_file_btn,
-                "New",
-                tooltip::Position::Bottom
-            ).gap(5),
-            horizontal_space(Length::Fixed(20.0)),
-            tooltip(
-                save_file_btn,
-                "Save",
-                tooltip::Position::Bottom
-            ).gap(5),
-        ];
+            action(open_icon(), "Open File", Message::Open),
+            action(new_icon(), "New File", Message::New),
+            action(save_icon(), "Save File", Message::Save),
+        ].spacing(10);
         let editor = text_editor(&self.content).on_edit(Message::Edit);
 
         let status_bar = {
@@ -224,6 +203,22 @@ fn new_icon<'a>() -> Element<'a, Message> {
 
 fn save_icon<'a>() -> Element<'a, Message> {
     icon('\u{E802}')
+}
+
+fn action<'a>(
+    content: Element<'a, Message>,
+    label: &str,
+    on_press: Message
+) -> Element<'a, Message> {
+    tooltip(
+        button(container(content).width(30).center_x())
+            .padding([5, 10])
+            .on_press(on_press),
+        label,
+        tooltip::Position::FollowCursor,
+    )
+        .style(theme::Container::Box)
+        .into()
 }
 
 fn main() -> iced::Result {
