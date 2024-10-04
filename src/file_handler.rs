@@ -1,24 +1,20 @@
+use crate::editor::EditorError;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use crate::editor::EditorError;
 
 const ROOT_DIR: &'static str = env!("CARGO_MANIFEST_DIR");
 
 pub async fn open_file() -> Result<(PathBuf, Arc<String>), EditorError> {
     let handler = rfd::AsyncFileDialog::new()
         .set_title("Choose a text file ...")
-        .set_directory(format!("{}",ROOT_DIR))
+        .set_directory(format!("{}", ROOT_DIR))
         .pick_file()
         .await
         .ok_or(EditorError::DialogClose)?;
-    load_file(handler)
-        .await
+    load_file(handler).await
 }
 
-pub async fn save_file(
-    path: Option<PathBuf>,
-    contents: String
-) -> Result<PathBuf, EditorError> {
+pub async fn save_file(path: Option<PathBuf>, contents: String) -> Result<PathBuf, EditorError> {
     let path = if let Some(path) = path {
         path
     } else {
@@ -34,7 +30,7 @@ pub async fn save_file(
     };
     rfd::AsyncFileDialog::new()
         .set_title("Save file ...")
-        .set_directory(format!("{}",ROOT_DIR))
+        .set_directory(format!("{}", ROOT_DIR))
         .save_file()
         .await
         .ok_or(EditorError::DialogClose)?;
@@ -44,7 +40,7 @@ pub async fn save_file(
     Ok(path)
 }
 
-pub async fn load_file(path: impl Into<PathBuf>) -> Result<(PathBuf,Arc<String>), EditorError> {
+pub async fn load_file(path: impl Into<PathBuf>) -> Result<(PathBuf, Arc<String>), EditorError> {
     let path = path.into();
     let contents = tokio::fs::read_to_string(&path)
         .await

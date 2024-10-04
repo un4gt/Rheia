@@ -1,28 +1,25 @@
-use std::{ffi, io};
+use crate::components::action;
+use crate::file_handler::{default_file, load_file, open_file, save_file};
+use crate::icons::{new_icon, open_icon, save_icon};
+use iced::event::{self, Event};
+use iced::widget::{self, column, horizontal_space, pick_list, row, text, text_editor};
+use iced::{highlighter, keyboard, window, Center, Element, Fill, Subscription, Task, Theme};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use iced::{Center, Element, Fill, highlighter, keyboard, Task, Theme};
-use iced::widget::{self, horizontal_space, pick_list, row, text, text_editor, column};
-use crate::file_handler::{open_file, save_file, default_file, load_file};
-use crate::components::action;
-use crate::icons::{
-    open_icon,
-    save_icon,
-    new_icon
-};
+use std::{ffi, io};
 
 pub struct Editor {
     file: Option<PathBuf>,
     content: text_editor::Content,
     theme: highlighter::Theme,
     is_dirty: bool,
-    is_loading: bool
+    is_loading: bool,
 }
 
 #[derive(Debug, Clone)]
 pub enum EditorError {
     DialogClose,
-    IoError(io::ErrorKind)
+    IoError(io::ErrorKind),
 }
 
 #[derive(Debug, Clone)]
@@ -32,28 +29,25 @@ pub enum EditorMessage {
     OpenFile,
     NewFile,
     SaveFile,
+    FileDropped(PathBuf),
     FileSaved(Result<PathBuf, EditorError>),
     ThemeChanged(highlighter::Theme),
 }
 
 impl Editor {
-
     pub fn new() -> (Self, Task<EditorMessage>) {
         (
             Self {
-            file: None,
-            content: text_editor::Content::new(),
-            theme: highlighter::Theme::SolarizedDark,
-            is_dirty: false,
-            is_loading: true
-        },
+                file: None,
+                content: text_editor::Content::new(),
+                theme: highlighter::Theme::SolarizedDark,
+                is_dirty: false,
+                is_loading: true,
+            },
             Task::batch([
-                Task::perform(
-                    load_file(default_file()),
-                    EditorMessage::FileOpened
-                ),
-                widget::focus_next()
-            ])
+                Task::perform(load_file(default_file()), EditorMessage::FileOpened),
+                widget::focus_next(),
+            ]),
         )
     }
 
@@ -82,9 +76,7 @@ impl Editor {
                 } else {
                     self.is_loading = true;
 
-                    Task::perform(
-                        open_file(), EditorMessage::FileOpened
-                    )
+                    Task::perform(open_file(), EditorMessage::FileOpened)
                 }
             }
             EditorMessage::NewFile => {
@@ -103,7 +95,7 @@ impl Editor {
 
                     Task::perform(
                         save_file(self.file.clone(), self.content.text()),
-                        EditorMessage::FileSaved
+                        EditorMessage::FileSaved,
                     )
                 }
             }
@@ -122,6 +114,11 @@ impl Editor {
 
                 Task::none()
             }
+
+            EditorMessage::FileDropped(path) => Task::batch([
+                Task::perform(load_file(path), EditorMessage::FileOpened),
+                widget::focus_next(),
+            ]),
         }
     }
 
@@ -147,8 +144,8 @@ impl Editor {
             .text_size(14)
             .padding([5, 10])
         ]
-            .spacing(10)
-            .align_y(Center);
+        .spacing(10)
+        .align_y(Center);
 
         let status_bar = {
             let file_status = if let Some(path) = &self.file {
@@ -169,9 +166,7 @@ impl Editor {
                 let base_info = format!("{}:{}", line + 1, column + 1);
 
                 match select {
-                    None => {
-                        text(base_info)
-                    }
+                    None => text(base_info),
                     Some(select) => {
                         let breaks = select.matches('\n').count();
                         let extra_info = if breaks > 0 {
@@ -195,29 +190,35 @@ impl Editor {
                     .and_then(Path::extension)
                     .and_then(ffi::OsStr::to_str)
                     .unwrap_or("md"),
-                self.theme
+                self.theme,
             )
-            .key_binding(|key_press| {
-                match key_press.key.as_ref() {
-                    keyboard::Key::Character("s") if key_press.modifiers.command() => {
-                        Some(text_editor::Binding::Custom(EditorMessage::SaveFile))
-                    }
-                    _ => text_editor::Binding::from_key_press(key_press),
+            .key_binding(|key_press| match key_press.key.as_ref() {
+                keyboard::Key::Character("s") if key_press.modifiers.command() => {
+                    Some(text_editor::Binding::Custom(EditorMessage::SaveFile))
                 }
+                _ => text_editor::Binding::from_key_press(key_press),
             });
 
-        column![controls,editor,status_bar]
+        column![controls, editor, status_bar]
             .spacing(10)
             .padding(10)
             .into()
     }
 
-    pub(crate) fn theme(&self) -> Theme {
+    pub fn theme(&self) -> Theme {
         if self.theme.is_dark() {
             Theme::Dark
         } else {
             Theme::Light
         }
     }
-}
 
+    pub fn subscription(&self) -> Subscription<EditorMessage> {
+        event::listen_with(|event, _status, _windows| match event {
+            Event::Window(window::Event::FileDropped(path)) => {
+                Some(EditorMessage::FileDropped(path))
+            }
+            _ => None,
+        })
+    }
+}

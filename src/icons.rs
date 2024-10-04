@@ -1,5 +1,5 @@
-use iced::{Element, Font};
 use iced::widget::text;
+use iced::{Element, Font};
 
 // global icon handlers
 const ICON_FONT: Font = Font::with_name("editor-icons");
