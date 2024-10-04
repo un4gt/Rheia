@@ -59,7 +59,7 @@ match select {
 
 ### Open file by drag and drop file
 
-![Open_file_by_drag_and_drop_file](https://youtu.be/rrkZqg-zCEE)
+[![Open file by drag and drop in rust iced](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fyoutu.be%2FrrkZqg-zCEE)](https://youtu.be/rrkZqg-zCEE)
 
 Add file drop message :
 
